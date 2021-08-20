@@ -22,29 +22,31 @@ do
 done
 
 cd "${5}"
+source devel/setup.bash
+rosdep update
 
 echo ""
 echo "## Install ROS pkgs dependencies ##"
 if [ -n $ROS_VERSION ]
 then
-  if [ $ROS_VERSION == "1" ]
+  if [[ $ROS_VERSION == "1" ]]
   then
     source devel/setup.bash
     rosdep install -y -i -r --from-path src
     catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=1
-  elif [ $ROS_VERSION == "2" ]
+  elif [[ $ROS_VERSION == "2" ]]
   then
     source install/setup.bash
     rosdep install -y -i -r --from-path src
     colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    source /root/ws/install/setup.bash
+    source ${5}/install/setup.bash
     colcon list > /tmp/colcon_list.txt
     path_to_src_code=$(cat /tmp/colcon_list.txt |  grep "^$1" | awk '{ print $2}')
     if [ -z "$path_to_src_code" ]; then
       echo "** ERROR: Package ${1} not found in the workspace **"
       exit
     fi
-    path_to_src_code="/root/ws/$path_to_src_code"
+    path_to_src_code="${5}/$path_to_src_code"
   else
     echo "ROS version not supported"
     exit
@@ -58,18 +60,18 @@ echo ""
 #tree ${5}
 
 echo "## Init HAROS ##"
-
+mkdir -p "${4}"
 haros init
 
 echo ""
 echo "## Call the HAROS plugin to extract the ros-models ##"
 if [ -n $PYTHON_VERSION ]
 then
-  if [ $PYTHON_VERSION == "2" ]
+  if [[ $PYTHON_VERSION == "2" ]]
   then
     python /ros_model_extractor.py --package "$1" --name "$2" --"${3}" --model-path "${4}" --ws "${5}">> extractor.log
     #cat extractor.log
-  elif [ $PYTHON_VERSION == "3" ]
+  elif [[ $PYTHON_VERSION == "3" ]]
   then
     python3 /ros_model_extractor.py --package "$1" --name "$2" --"${3}" --model-path "${4}" --ws "${5}" --path-to-src "$path_to_src_code">> extractor.log
     #cat extractor.log 
