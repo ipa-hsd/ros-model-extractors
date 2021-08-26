@@ -21,9 +21,10 @@ do
   git clone $repo
 done
 
+rosdep update
 cd "${5}"
 source devel/setup.bash
-rosdep update
+source install/setup.bash
 
 echo ""
 echo "## Install ROS pkgs dependencies ##"
@@ -100,3 +101,6 @@ else
   echo "~~~~~~~~~~~"
   echo "###########"
 fi
+
+## Clean and finish
+rm -rf ${5}/src/*
